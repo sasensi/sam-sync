@@ -1,13 +1,13 @@
 {
   "name": "sam-sync",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Runs synchronization commands in a Docker container from a deployment configuration file.",
   "main": "index.js",
   "bin": {
     "sam-sync": "index.js"
   },
   "scripts": {
-    "release": "standard-version"
+    "release": "standard-version && npm publish"
   },
   "repository": {
     "type": "git",
