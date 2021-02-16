@@ -4,7 +4,7 @@
   "description": "Runs synchronization commands in a Docker container from a deployment configuration file.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "release": "standard-version"
   },
   "repository": {
     "type": "git",
@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/sasensi/sam-sync/issues"
   },
-  "homepage": "https://github.com/sasensi/sam-sync#readme"
+  "homepage": "https://github.com/sasensi/sam-sync#readme",
+  "devDependencies": {
+    "standard-version": "^9.1.0"
+  }
 }
