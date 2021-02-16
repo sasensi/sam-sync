@@ -1,0 +1,22 @@
+{
+  "name": "sam-sync",
+  "version": "1.0.0",
+  "description": "Runs synchronization commands in a Docker container from a deployment configuration file.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sasensi/sam-sync.git"
+  },
+  "keywords": [
+    "sync"
+  ],
+  "author": "Samuel ASENSI",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sasensi/sam-sync/issues"
+  },
+  "homepage": "https://github.com/sasensi/sam-sync#readme"
+}
