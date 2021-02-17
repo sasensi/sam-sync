@@ -1,6 +1,4 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://raw.githubusercontent.com/sasensi/sam-sync/master/schema.json",
   "host": "<IP>",
   "user": "<USER>",
   "password": "<PASSWORD>",
