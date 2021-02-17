@@ -1,0 +1,55 @@
+{
+  "host": "<IP>",
+  "user": "<USER>",
+  "password": "<PASSWORD>",
+  "verbose": true,
+  "dry": true,
+  "localPrefix": "/path/",
+  "remotePrefix": "/path/",
+  "up": {
+    "directories": [
+      {
+        "source": "path",
+        "excludes": [
+          "/path"
+        ]
+      },
+      {
+        "source": "path",
+        "destin": "path"
+      }
+    ],
+    "files": [
+      {
+        "source": "path"
+      },
+      {
+        "source": "path",
+        "destin": "path"
+      }
+    ]
+  },
+  "down": {
+    "directories": [
+      {
+        "source": "path",
+        "excludes": [
+          "/path"
+        ]
+      },
+      {
+        "source": "path",
+        "destin": "path"
+      }
+    ],
+    "files": [
+      {
+        "source": "path"
+      },
+      {
+        "source": "path",
+        "destin": "path"
+      }
+    ]
+  }
+}
