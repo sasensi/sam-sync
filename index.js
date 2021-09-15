@@ -41,7 +41,7 @@ function validateConfig(config) {
 function getCommonData(commandConfig, isDownload, isFTP) {
   const protocolPrefix = isFTP ? ':ftp:' : `${config.user}@${config.host}:`;
   const remotePrefix = `${protocolPrefix}${config.remotePrefix || ''}`;
-  const localPrefix = config.localPrefix || '';
+  const localPrefix = `${mountedDirectory}${config.localPrefix || ''}`;
   const sourcePrefix = isDownload ? remotePrefix : localPrefix;
   const destinationPrefix = isDownload ? localPrefix : remotePrefix;
   const sourceSuffix = commandConfig.source;
