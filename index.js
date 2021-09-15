@@ -13,6 +13,10 @@ const config = JSON.parse(fs.readFileSync(absolutePath));
 
 validateConfig(config);
 
+const isFtp = config.type === 'ftp';
+const buildDirectoryCommand = isFtp ? buildDirectoryCommandFTP : buildDirectoryCommandSSH;
+const buildFileCommand = isFtp ? buildFileCommandFTP : buildFileCommandSSH;
+
 const commands = [
   ...(config.up?.directories || []).map((_) => buildDirectoryCommand(_, false)),
   ...(config.up?.files || []).map((_) => buildFileCommand(_, false)),
@@ -34,9 +38,10 @@ function validateConfig(config) {
   // todo
 }
 
-function getCommonData(commandConfig, isDownload) {
-  const remotePrefix = `${config.user}@${config.host}:${config.remotePrefix || ''}`;
-  const localPrefix = `${mountedDirectory}${config.localPrefix || ''}`;
+function getCommonData(commandConfig, isDownload, isFTP) {
+  const protocolPrefix = isFTP ? ':ftp:' : `${config.user}@${config.host}:`;
+  const remotePrefix = `${protocolPrefix}${config.remotePrefix || ''}`;
+  const localPrefix = config.localPrefix || '';
   const sourcePrefix = isDownload ? remotePrefix : localPrefix;
   const destinationPrefix = isDownload ? localPrefix : remotePrefix;
   const sourceSuffix = commandConfig.source;
@@ -46,15 +51,36 @@ function getCommonData(commandConfig, isDownload) {
   return { source, destination };
 }
 
-function buildFileCommand(commandConfig, isDownload) {
+function buildCommandFTP(commandConfig, isDownload, isSingleFile) {
+  let excludes = '';
+  if (commandConfig.excludes) {
+    commandConfig.excludes.forEach(exclude => {
+      excludes += `--exclude="${exclude}" `;
+    });
+  }
+
+  const dryRun = config.dry ? '--dry-run' : '';
+  const verbose = config.verbose ? '-vv' : '';
+  const rcloneCommand = isSingleFile ? 'copyto' : 'sync';
+  const { source, destination } = getCommonData(commandConfig, isDownload, true);
+  return `rclone ${rcloneCommand} ${source} ${destination} `
+      + `--ftp-host=${config.host} --ftp-user=${config.user} --ftp-pass=\`rclone obscure ${config.password}\` `
+      + `${excludes} ${dryRun} ${verbose} -L`;
+}
+
+function buildFileCommandSSH(commandConfig, isDownload) {
   const { source, destination } = getCommonData(commandConfig, isDownload);
   const command = `sshpass -p "${config.password}" scp -o StrictHostKeyChecking=no ${source} ${destination}`;
   return config.dry
-    ? `echo "dry run: ${command.replace(/"/g, '\x22')}"`
-    : command;
+         ? `echo "dry run: ${command.replace(/"/g, '\x22')}"`
+         : command;
 }
 
-function buildDirectoryCommand(commandConfig, isDownload) {
+function buildFileCommandFTP(commandConfig, isDownload) {
+  return buildCommandFTP(commandConfig, isDownload, true);
+}
+
+function buildDirectoryCommandSSH(commandConfig, isDownload) {
   let excludes = '';
   if (commandConfig.excludes) {
     commandConfig.excludes.forEach(exclude => {
@@ -70,6 +96,9 @@ function buildDirectoryCommand(commandConfig, isDownload) {
   return `rsync -avzh ${password} --delete-after ${verbose} ${dryRun} ${excludes} ${source} ${destination}`;
 }
 
+function buildDirectoryCommandFTP(commandConfig, isDownload) {
+  return buildCommandFTP(commandConfig, isDownload, false);
+}
 
 function log(data) {
   process.stdout.write(data);
