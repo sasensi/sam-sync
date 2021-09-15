@@ -51,7 +51,7 @@ function getCommonData(commandConfig, isDownload, isFTP) {
   return { source, destination };
 }
 
-function buildCommandFTP(commandConfig, isDownload, isSingleFile) {
+function buildCommandFTP(commandConfig, isDownload, isSingleFile, isDelete) {
   let excludes = '';
   if (commandConfig.excludes) {
     commandConfig.excludes.forEach(exclude => {
@@ -61,23 +61,26 @@ function buildCommandFTP(commandConfig, isDownload, isSingleFile) {
 
   const dryRun = config.dry ? '--dry-run' : '';
   const verbose = config.verbose ? '-vv' : '';
-  const rcloneCommand = isSingleFile ? 'copyto' : 'sync';
-  const { source, destination } = getCommonData(commandConfig, isDownload, true);
+  const rcloneCommand = isSingleFile ? (isDelete ? 'delete' : 'copyto') : 'sync';
+  let { source, destination } = getCommonData(commandConfig, isDownload, true);
+  if (isDelete) source = '';
   return `rclone ${rcloneCommand} ${source} ${destination} `
-      + `--ftp-host=${config.host} --ftp-user=${config.user} --ftp-pass=\`rclone obscure ${config.password}\` `
-      + `${excludes} ${dryRun} ${verbose} -L`;
+    + `--ftp-host=${config.host} --ftp-user=${config.user} --ftp-pass=\`rclone obscure ${config.password}\` `
+    + `${excludes} ${dryRun} ${verbose} -L`;
 }
 
 function buildFileCommandSSH(commandConfig, isDownload) {
   const { source, destination } = getCommonData(commandConfig, isDownload);
   const command = `sshpass -p "${config.password}" scp -o StrictHostKeyChecking=no ${source} ${destination}`;
   return config.dry
-         ? `echo "dry run: ${command.replace(/"/g, '\x22')}"`
-         : command;
+    ? `echo "dry run: ${command.replace(/"/g, '\x22')}"`
+    : command;
 }
 
 function buildFileCommandFTP(commandConfig, isDownload) {
-  return buildCommandFTP(commandConfig, isDownload, true);
+  const deleteCommand = buildCommandFTP(commandConfig, isDownload, true, true);
+  const copyCommand = buildCommandFTP(commandConfig, isDownload, true);
+  return `${deleteCommand} && ${copyCommand}`;
 }
 
 function buildDirectoryCommandSSH(commandConfig, isDownload) {
