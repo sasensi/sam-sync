@@ -1,6 +1,6 @@
 {
   "name": "sam-sync",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Runs synchronization commands in a Docker container from a deployment configuration file.",
   "main": "index.js",
   "bin": {
