@@ -55,10 +55,15 @@ function getCommonData(commandConfig, isDownload, isFTP) {
 }
 
 function buildCommandFTP(commandConfig, isDownload, isSingleFile, isDelete) {
+  let { source, destination } = getCommonData(commandConfig, isDownload, true);
+
   let excludes = '';
   if (commandConfig.excludes) {
     commandConfig.excludes.forEach(exclude => {
-      const pathFromRoot = `${commandConfig.source}${exclude}`.replace('//', '/');
+      let pathFromRoot = `${commandConfig.source}${exclude}`.replace('//', '/');
+      if (exclude.startsWith('/') && !pathFromRoot.startsWith('/')) {
+        pathFromRoot = `/${pathFromRoot}`;
+      }
       excludes += `--exclude="${pathFromRoot}" `;
     });
   }
@@ -66,7 +71,6 @@ function buildCommandFTP(commandConfig, isDownload, isSingleFile, isDelete) {
   const dryRun = config.dry ? '--dry-run' : '';
   const verbose = config.verbose ? '-vv' : '';
   const rcloneCommand = isSingleFile ? (isDelete ? 'delete' : 'copyto') : 'sync';
-  let { source, destination } = getCommonData(commandConfig, isDownload, true);
   if (isDelete) source = '';
   return `rclone ${rcloneCommand} ${source} ${destination} `
     + `--${ftpProtocol}-host=${config.host} --${ftpProtocol}-user=${config.user} --${ftpProtocol}-pass=\`rclone obscure ${config.password}\` `
