@@ -59,7 +59,7 @@ function buildCommandFTP(commandConfig, isDownload, isSingleFile, isDelete) {
   if (commandConfig.excludes) {
     commandConfig.excludes.forEach(exclude => {
       const pathFromRoot = `${commandConfig.source}${exclude}`.replace('//', '/');
-      excludes += `--exclude="${exclude}" `;
+      excludes += `--exclude="${pathFromRoot}" `;
     });
   }
 
