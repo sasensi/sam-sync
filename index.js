@@ -15,7 +15,7 @@ validateConfig(config);
 
 const isSftp = config.type === 'sftp';
 const isFtp = config.type === 'ftp';
-const isFtpOrSftp = isFtp || isSftp;
+const isFtpOrSftp = isFtp||isSftp;
 const ftpProtocol = config.type;
 const buildDirectoryCommand = isFtpOrSftp ? buildDirectoryCommandFTP : buildDirectoryCommandSSH;
 const buildFileCommand = isFtpOrSftp ? buildFileCommandFTP : buildFileCommandSSH;
@@ -55,22 +55,17 @@ function getCommonData(commandConfig, isDownload, isFTP) {
 }
 
 function buildCommandFTP(commandConfig, isDownload, isSingleFile, isDelete) {
-  let { source, destination } = getCommonData(commandConfig, isDownload, true);
-
   let excludes = '';
   if (commandConfig.excludes) {
     commandConfig.excludes.forEach(exclude => {
-      let pathFromRoot = `${commandConfig.source}${exclude}`.replace('//', '/');
-      if (exclude.startsWith('/') && !pathFromRoot.startsWith('/')) {
-        pathFromRoot = `/${pathFromRoot}`;
-      }
-      excludes += `--exclude="${pathFromRoot}" `;
+      excludes += `--exclude="${exclude}" `;
     });
   }
 
   const dryRun = config.dry ? '--dry-run' : '';
   const verbose = config.verbose ? '-vv' : '';
   const rcloneCommand = isSingleFile ? (isDelete ? 'delete' : 'copyto') : 'sync';
+  let { source, destination } = getCommonData(commandConfig, isDownload, true);
   if (isDelete) source = '';
   return `rclone ${rcloneCommand} ${source} ${destination} `
     + `--${ftpProtocol}-host=${config.host} --${ftpProtocol}-user=${config.user} --${ftpProtocol}-pass=\`rclone obscure ${config.password}\` `
