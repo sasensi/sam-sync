@@ -13,9 +13,12 @@ const config = JSON.parse(fs.readFileSync(absolutePath));
 
 validateConfig(config);
 
+const isSftp = config.type === 'sftp';
 const isFtp = config.type === 'ftp';
-const buildDirectoryCommand = isFtp ? buildDirectoryCommandFTP : buildDirectoryCommandSSH;
-const buildFileCommand = isFtp ? buildFileCommandFTP : buildFileCommandSSH;
+const isFtpOrSftp = isFtp||isSftp;
+const ftpProtocol = config.type;
+const buildDirectoryCommand = isFtpOrSftp ? buildDirectoryCommandFTP : buildDirectoryCommandSSH;
+const buildFileCommand = isFtpOrSftp ? buildFileCommandFTP : buildFileCommandSSH;
 
 const commands = [
   ...(config.up?.directories || []).map((_) => buildDirectoryCommand(_, false)),
@@ -39,7 +42,7 @@ function validateConfig(config) {
 }
 
 function getCommonData(commandConfig, isDownload, isFTP) {
-  const protocolPrefix = isFTP ? ':ftp:' : `${config.user}@${config.host}:`;
+  const protocolPrefix = isFTP ? `:${ftpProtocol}:` : `${config.user}@${config.host}:`;
   const remotePrefix = `${protocolPrefix}${config.remotePrefix || ''}`;
   const localPrefix = `${mountedDirectory}${config.localPrefix || ''}`;
   const sourcePrefix = isDownload ? remotePrefix : localPrefix;
@@ -65,7 +68,7 @@ function buildCommandFTP(commandConfig, isDownload, isSingleFile, isDelete) {
   let { source, destination } = getCommonData(commandConfig, isDownload, true);
   if (isDelete) source = '';
   return `rclone ${rcloneCommand} ${source} ${destination} `
-    + `--ftp-host=${config.host} --ftp-user=${config.user} --ftp-pass=\`rclone obscure ${config.password}\` `
+    + `--${ftpProtocol}-host=${config.host} --${ftpProtocol}-user=${config.user} --${ftpProtocol}-pass=\`rclone obscure ${config.password}\` `
     + `${excludes} ${dryRun} ${verbose} -L`;
 }
 
