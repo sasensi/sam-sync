@@ -15,7 +15,7 @@ validateConfig(config);
 
 const isSftp = config.type === 'sftp';
 const isFtp = config.type === 'ftp';
-const isFtpOrSftp = isFtp||isSftp;
+const isFtpOrSftp = isFtp || isSftp;
 const ftpProtocol = config.type;
 const buildDirectoryCommand = isFtpOrSftp ? buildDirectoryCommandFTP : buildDirectoryCommandSSH;
 const buildFileCommand = isFtpOrSftp ? buildFileCommandFTP : buildFileCommandSSH;
@@ -58,6 +58,7 @@ function buildCommandFTP(commandConfig, isDownload, isSingleFile, isDelete) {
   let excludes = '';
   if (commandConfig.excludes) {
     commandConfig.excludes.forEach(exclude => {
+      const pathFromRoot = `${commandConfig.source}${exclude}`.replace('//', '/');
       excludes += `--exclude="${exclude}" `;
     });
   }
