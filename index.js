@@ -19,6 +19,7 @@ const isFtpOrSftp = isFtp||isSftp;
 const ftpProtocol = config.type;
 const buildDirectoryCommand = isFtpOrSftp ? buildDirectoryCommandFTP : buildDirectoryCommandSSH;
 const buildFileCommand = isFtpOrSftp ? buildFileCommandFTP : buildFileCommandSSH;
+const port = config.port || 22;
 
 const commands = [
   ...(config.up?.directories || []).map((_) => buildDirectoryCommand(_, false)),
@@ -74,7 +75,7 @@ function buildCommandFTP(commandConfig, isDownload, isSingleFile, isDelete) {
 
 function buildFileCommandSSH(commandConfig, isDownload) {
   const { source, destination } = getCommonData(commandConfig, isDownload);
-  const command = `sshpass -p "${config.password}" scp -o StrictHostKeyChecking=no ${source} ${destination}`;
+  const command = `sshpass -p "${config.password}" scp -o StrictHostKeyChecking=no -P ${port} ${source} ${destination}`;
   return config.dry
     ? `echo "dry run: ${command.replace(/"/g, '\x22')}"`
     : command;
@@ -97,7 +98,7 @@ function buildDirectoryCommandSSH(commandConfig, isDownload) {
   const dryRun = config.dry ? '--dry-run' : '';
   const verbose = config.verbose ? '--verbose' : '';
   const { source, destination } = getCommonData(commandConfig, isDownload);
-  const password = `--rsh='sshpass -p "${config.password}" ssh -o StrictHostKeyChecking=no'`;
+  const password = `--rsh='sshpass -p "${config.password}" ssh -o StrictHostKeyChecking=no -p ${port}'`;
 
   return `rsync -avzh ${password} --delete-after ${verbose} ${dryRun} ${excludes} ${source} ${destination}`;
 }
