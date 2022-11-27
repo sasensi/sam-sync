@@ -30,7 +30,7 @@ const commands = [
 
 const dockerArgument = commands.join(' && ');
 const volume = `-v ${directory}:${mountedDirectory}`;
-const dockerCommand = `docker run --rm ${volume} sam/allsync /bin/bash -c "${dockerArgument}"`;
+const dockerCommand = `docker run --rm ${volume} sasensi/allsync /bin/bash -c "${dockerArgument}"`;
 
 (async () => await execCommand(dockerCommand))();
 
